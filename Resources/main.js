@@ -1,21 +1,22 @@
 //TODO
-    // Save button starts disabled until a change is made
-    // Loading clears the current grid before adding loaded notes
     
 function addNewNote(){
-    //[filehandle] = await window.showOpenFilePicker();
     showAllRows();
     let newRow = document.getElementById("noteRow").cloneNode(true);
     document.getElementById("maintable").appendChild(newRow);
-    newRow.querySelectorAll("#noteId")[0].innerHTML = getMaxID();
-    newRow.querySelectorAll('input')[0].value = document.getElementById("searchbar").value;
+
+    let id = getMaxID();
+
+    newRow.id = id;
+    newRow.querySelectorAll("#noteId")[0].innerHTML = id;
+    newRow.querySelectorAll('textarea')[0].value = document.getElementById("searchbar").value;
 
     hideElement(document.getElementById("noteRow"));
+    enableElement(document.getElementById('savebutton'));
     resetSearchBar();
 }
 
 let filehandle;
-let notes;
 let MaxID;
 
 function getMaxID(){
@@ -32,12 +33,12 @@ function resetSearchBar(){
 async function openFile(){
     [filehandle] = await window.showOpenFilePicker();
     let filedata = await filehandle.getFile();
-    notes = JSON.parse(await filedata.text());
+    let notes = JSON.parse(await filedata.text());
 
-    loadNotes();
+    loadNotes(notes);
 }
 
-function loadNotes(){
+function loadNotes(notes){
     resetAllRows();
     for(let key in notes){
         if(key == "maxid") {
@@ -47,22 +48,26 @@ function loadNotes(){
            let newRow = document.getElementById("noteRow").cloneNode(true);
             newRow.id = key;
             newRow.querySelectorAll("#noteId")[0].innerText = key;
-            newRow.querySelectorAll('input')[0].value = notes[key][0];
-            newRow.querySelectorAll("#lastEdit")[0].innerText = notes[key][1];
+            newRow.querySelectorAll('textarea')[0].value = notes[key];
+
+            newRow.querySelectorAll('textarea')[0].addEventListener('keyup', function(){
+                console.log("change");
+                enableElement(document.getElementById('savebutton'));
+            })
+
             newRow.querySelectorAll(".btn")[0].id =key;
+
             newRow.querySelectorAll(".btn")[0].addEventListener('click', function() {
                 console.log(key);
                 document.getElementById("maintable").removeChild(document.getElementById(key));
+                enableElement(document.getElementById('savebutton'));
             });
+
             document.getElementById("maintable").appendChild(newRow);
         }
     }
 
     document.getElementById("noteRow").classList.add("d-none");
-}
-
-function deleteNote(id){
-    console.log(id);
 }
 
 async function saveNotes(){
@@ -84,8 +89,7 @@ async function saveNotes(){
             }
 
             output += '"' + row.querySelectorAll("#noteId")[0].innerText + '":';
-            output += ' ["' + row.querySelectorAll("#noteText")[0].value + '",';
-            output += ' "' + row.querySelectorAll("#lastEdit")[0].innerText + '"]';
+            output += ' "' + row.querySelectorAll("#noteText")[0].value + '"';
         }
     }
     output += '}';
@@ -162,6 +166,7 @@ function resetAllRows(){
     }
 
     showElement(document.getElementById('noteRow'));
+    hideElement(document.getElementById('emptytext'));
 }
 
 function showElement(element){
