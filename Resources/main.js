@@ -1,28 +1,53 @@
 //TODO
-    
+    // Add tab for Holds
+
 function addNewNote(){
     showAllRows();
-    let newRow = document.getElementById("noteRow").cloneNode(true);
-    document.getElementById("maintable").appendChild(newRow);
+    
+    let note = createNoteRow();
 
-    let id = getMaxID();
+    populateNoteDetails(note, getMaxID(), document.getElementById("searchbar").value);
 
-    newRow.id = id;
-    newRow.querySelectorAll("#noteId")[0].innerHTML = id;
-    newRow.querySelectorAll('textarea')[0].value = document.getElementById("searchbar").value;
+    addNewRow(note)
 
     hideElement(document.getElementById("noteRow"));
     enableElement(document.getElementById('savebutton'));
     resetSearchBar();
 }
 
-let filehandle;
-let MaxID;
-
+let MaxId;
 function getMaxID(){
-    let id = MaxID;
-    MaxID += 1;
+    // Get the MaxId and return it; also increase the MaxId by 1 to be used later 
+    let id = MaxId;
+    MaxId += 1;
     return id;
+}
+
+function createNoteRow(){
+    // All note rows are cloned from a blank note row which is hidden after cloning
+    return document.getElementById("noteRow").cloneNode(true);
+}
+
+function populateNoteDetails(note, id, text){
+    note.id = id;
+    note.querySelectorAll("#noteId")[0].innerHTML = id;
+    note.querySelectorAll('textarea')[0].value = text;
+
+    note.querySelectorAll('textarea')[0].addEventListener('keyup', function(){
+        console.log("change");
+        enableElement(document.getElementById('savebutton'));
+    })
+
+    note.querySelectorAll(".btn")[0].id = id;
+
+    note.querySelectorAll(".btn")[0].addEventListener('click', function() {
+        document.getElementById("maintable").removeChild(document.getElementById(id));
+        enableElement(document.getElementById('savebutton'));
+    });
+}
+
+function addNewRow(note){
+    document.getElementById("maintable").appendChild(note);
 }
 
 function resetSearchBar(){
@@ -30,8 +55,18 @@ function resetSearchBar(){
     document.getElementById("searchbar").value = "";
 }
 
+let filehandle;
 async function openFile(){
-    [filehandle] = await window.showOpenFilePicker();
+    [filehandle] = await window.showOpenFilePicker({
+        types: [
+            {
+                description: 'Json',
+                accept: {
+                    'json/*': ['.json']
+                }
+            }
+        ]
+    });
     let filedata = await filehandle.getFile();
     let notes = JSON.parse(await filedata.text());
 
@@ -40,34 +75,21 @@ async function openFile(){
 
 function loadNotes(notes){
     resetAllRows();
-    for(let key in notes){
-        if(key == "maxid") {
-            MaxID = notes[key];
-            console.log(MaxID);
+    for(let noteid in notes){
+        if(noteid == "maxid") {
+            // MaxId used as a counter for the new available id
+            MaxId = notes[noteid];
+            console.log(MaxId);
         }else{
-           let newRow = document.getElementById("noteRow").cloneNode(true);
-            newRow.id = key;
-            newRow.querySelectorAll("#noteId")[0].innerText = key;
-            newRow.querySelectorAll('textarea')[0].value = notes[key];
+            let note = createNoteRow();
 
-            newRow.querySelectorAll('textarea')[0].addEventListener('keyup', function(){
-                console.log("change");
-                enableElement(document.getElementById('savebutton'));
-            })
-
-            newRow.querySelectorAll(".btn")[0].id =key;
-
-            newRow.querySelectorAll(".btn")[0].addEventListener('click', function() {
-                console.log(key);
-                document.getElementById("maintable").removeChild(document.getElementById(key));
-                enableElement(document.getElementById('savebutton'));
-            });
-
-            document.getElementById("maintable").appendChild(newRow);
+            populateNoteDetails(note, noteid, notes[noteid]);
+            addNewRow(note)
         }
     }
 
-    document.getElementById("noteRow").classList.add("d-none");
+    enableElement(document.getElementById("searchbar"));
+    hideElement(document.getElementById("noteRow"));
 }
 
 async function saveNotes(){
@@ -75,7 +97,7 @@ async function saveNotes(){
 
     let output = '{';
 
-    output += '"maxid" : ' + MaxID;
+    output += '"maxid" : ' + MaxId;
 
     // tr:not(d.none) = don't select rows that are display 'none'
     let rows = document.querySelectorAll('tbody tr:not(.d-none)');
@@ -145,7 +167,6 @@ function AnyRowsVisible(){
 }
 
 function showAllRows(){
-    //let rows = document.querySelectorAll('tbody tr:not(#noteRow)');
     let rows = document.querySelectorAll('tbody tr');
     if (rows){
         for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
@@ -156,7 +177,6 @@ function showAllRows(){
 }
 
 function resetAllRows(){
-    //let rows = document.querySelectorAll('tbody tr:not(#noteRow)');
     let rows = document.querySelectorAll('tbody tr:not(#noteRow)');
     if (rows){
         for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {

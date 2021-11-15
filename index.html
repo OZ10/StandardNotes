@@ -8,23 +8,29 @@
 <html>
 
 <body>
-    <div class="containter mx-5">
-        <div class="maintext">Standard Notes DB</div>
-
-        <div class="input-group mb-3">
-            <button class="btn bi-file-earmark-fill" style="font-size: 2rem;" title="Open File"
+    <div class="container-fluid">
+        <div class="maintext p-4">Standard Notes DB</div>
+    </div>
+    <div class="mx-5">
+        <div class="row justify-content-between mb-3" style="border-top: 2rem; border: 1rem; border-color: black;">
+            <div class="col-4">
+                <button class="btn bi-file-earmark-fill" style="font-size: 2rem;" title="Open File"
                 onclick="openFile()"></button>
-            <button id="savebutton" class="btn bi-save-fill" style="font-size: 2rem;" title="Save File" onclick="saveNotes()" disabled></button>
+            </div>
+            <div class="col-4">
+                <button id="savebutton" class="btn bi-save-fill float-end" style="font-size: 2rem;" title="Save File" onclick="saveNotes()" disabled></button>
+            </div>
         </div>
         <div class="input-group mb-4">
             <i class="input-group-text bi-search"></i>
 
-            <input class="form-control" type="text" onkeyup="search()" id="searchbar">
+            <input class="form-control" type="text" onkeyup="search()" id="searchbar" disabled>
             <button class="btn bi-plus-circle-fill" style="font-size: 1.4rem;" id="addNewButton" title="Add New Note" onclick="addNewNote()" disabled></button>
         </div>
 
-        <table id="mainContainer" class="table table-hover align-middle">
-            <thead class="table-dark">
+        <div class="container-fluid">
+            <table class="table table-hover align-middle">
+            <thead class="table-dark" style="font-size: 1.2rem;">
                 <th>#</th>
                 <th style="width: 100%;">Note Text</th>
                 <th></th>
@@ -33,18 +39,20 @@
                 <tr class="d-none" id="noteRow">
                     <th scope="row" class="col-1" id="noteId">#</th>
                     <td class="">
-                        <!--<input class="form-control" type="text" id="noteText"> -->
                         <textarea class="form-control" id="noteText"></textarea>
                     </td>
-                    <!-- <td id="lastEdit">fre11896</td> -->
                     <td>
                         <button class="btn bi-trash-fill" style="font-size: 1.4rem;"></button>
                     </td>
                 </tr>
             </tbody>
         </table>
-        <div class="maintext" id="emptytext">Please load notes file</div>
-    </div>s
+        </div>
+        
+        <div class="container-fluid">
+            <div class="maintext p-4" id="emptytext"">Please load notes file</div>
+        </div>
+        
     </div>
 
     <script src="./Resources/main.js"></script>
